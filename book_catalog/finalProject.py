@@ -33,15 +33,21 @@ APPLICATION_NAME = 'CatalogueApp'
 
 ########## L O G I N #############
 
-#Create a state token
+
 @app.route('/login')
 def showLogin():
+    '''
+    Create a state token that will be later used in connecting through g+ e fb
+    '''
     state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
     login_session['state'] = state
     return render_template('login.html', STATE = state)
-# Connect using Facebook login details
+
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    '''
+    Connect a user to the app using Facebook login details
+    '''
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -111,6 +117,10 @@ def fbconnect():
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
+    '''
+    Disconnect a facebook user. Revoke a current user's token and reset 
+    their login_session
+    '''
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
@@ -123,6 +133,9 @@ def fbdisconnect():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    '''
+    Connect a user to the app using Google+ login details
+    '''
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -223,6 +236,9 @@ def gconnect():
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    '''
+    Revoke a current google user's token and reset their login_session
+    '''
     #access_token = login_session['access_token']
     access_token = login_session['credentials']
     print ('In gdisconnect access token is %s', access_token)
@@ -252,10 +268,13 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-# Disconnect based on provider and clear the session in case a user restart the browser
-# and the cookies are still there
+
 @app.route('/disconnect')
 def disconnect():
+    '''
+    Disconnect based on provider and clear the session in case a user restart the browser
+    and the cookies are still there
+    '''
     if 'provider' in login_session:
         if login_session['provider'] == 'google':
             gdisconnect()
@@ -274,6 +293,9 @@ def disconnect():
 
 @app.route('/series/JSON')
 def showSeriesJSON():
+    '''
+    List all series in JSON format
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     else:
@@ -282,6 +304,9 @@ def showSeriesJSON():
 
 @app.route('/series/<int:series_id>/titles/JSON')
 def showTitlesJSON(series_id):
+    '''
+    List all titles of a certain series in JSON format
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     else:
@@ -291,6 +316,9 @@ def showTitlesJSON(series_id):
 
 @app.route('/series/<int:series_id>/titles/<int:title_id>/JSON')
 def showTitleJSON(series_id, title_id):
+    '''
+    Show the details of a single title in JSON format
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     else:
@@ -302,6 +330,9 @@ def showTitleJSON(series_id, title_id):
 @app.route('/')
 @app.route('/series/')
 def showSeries():
+    '''
+    Render the templates with all series
+    '''
     items = session.query(Series).order_by(Series.name).all()
     if 'username' not in login_session:
         return render_template("publicseries.html", series = items)
@@ -310,6 +341,9 @@ def showSeries():
 
 @app.route('/series/new/', methods = ['GET', 'POST'])
 def newSeries():
+    '''
+    If you are logged in you can add a new series to the catalogue
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     creator = getUserInfo(login_session['user_id'])
@@ -326,6 +360,9 @@ def newSeries():
 
 @app.route('/series/<int:series_id>/edit/', methods = ['GET', 'POST'])
 def editSeries(series_id):
+    '''
+    If you are the owner of a series you can edit the details
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     editedItem = session.query(Series).filter_by(id=series_id).one()
@@ -350,6 +387,9 @@ def editSeries(series_id):
 
 @app.route('/series/<int:series_id>/delete/', methods = ['GET', 'POST'])
 def deleteSeries(series_id):
+    '''
+    If you are the owner of a series you can delete it
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     items = session.query(Series).order_by(Series.name).all()
@@ -371,6 +411,10 @@ def deleteSeries(series_id):
 @app.route('/series/<int:series_id>/')
 @app.route('/series/<int:series_id>/titles/')
 def showTitles(series_id):
+    '''
+    Show all the titles of a series.
+    If you are the owner of the series you can proceed to edit or delete the titles
+    '''
     series = session.query(Series).filter_by(id=series_id).one()
     creator = getUserInfo(series.user_id)
     items = session.query(Volume).filter_by(series_id=series.id).all()
@@ -382,6 +426,9 @@ def showTitles(series_id):
 @app.route('/series/<int:series_id>/titles/')
 @app.route('/series/<int:series_id>/titles/<int:title_id>/')
 def viewTitle(series_id, title_id):
+    '''
+    Show all the details of a title
+    '''
     series = session.query(Series).filter_by(id=series_id).one()
     creator = getUserInfo(series.user_id)
     item = session.query(Volume).filter_by(id=title_id).one()
@@ -390,6 +437,9 @@ def viewTitle(series_id, title_id):
 
 @app.route('/series/<int:series_id>/titles/new/', methods=['GET', 'POST'])
 def newTitle(series_id):
+    '''
+    If you are the owner of the series you can add a new title
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     series = session.query(Series).filter_by(id=series_id).one()
@@ -414,6 +464,9 @@ def newTitle(series_id):
 
 @app.route('/series/<int:series_id>/titles/<int:title_id>/edit/', methods = ['GET', 'POST'])
 def editTitle(series_id, title_id):
+    '''
+    If you are the owner of the series you can edit a title
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     editedItem = session.query(Volume).filter_by(id=title_id).one()
@@ -447,6 +500,9 @@ def editTitle(series_id, title_id):
 
 @app.route('/series/<int:series_id>/titles/<int:title_id>/delete/', methods = ['GET', 'POST'])
 def deleteTitle(series_id, title_id):
+    '''
+    If you are the owner of the series you can delete a title
+    '''
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     itemToDelete = session.query(Volume).filter_by(id=title_id).one()
@@ -490,9 +546,18 @@ def createUser(login_session):
 
 ############ UPLOADING functions ########################
 def allowed_file(filename):
+    '''
+    Return true if filename contains one of the file extensions
+    listed in ALLOWED_EXTENSIONS
+    '''
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def upload_file(series_id):
+    '''
+    Save the file uploaded in a subdirectory of UPLOAD_FOLDER, called after 
+    the id of the series to which the volume belongs.
+    The function returns then the name of the file.  
+    '''
     f = request.files['picture_file']
     if f and allowed_file(f.filename):
         filename = secure_filename(f.filename)
