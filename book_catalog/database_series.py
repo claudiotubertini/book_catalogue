@@ -24,31 +24,6 @@ class User(Base):
            'email'        : self.email,
            'picture'      : self.picture,
        }
-
-class Series(Base):
-    __tablename__ = 'series'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    description = Column(String)
-    director = Column(String)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
-
-    def __repr__(self):
-        return "<Series(name='%s' directed by '%s')>" % (self.name, self.director)
-
-    @property
-    def serialize(self):
-        return {
-            'name'          : self.name,
-            'id'            : self.id,
-            'description'   : self.description,
-            'director'      : self.director,
-            'user'          : self.user_id,
-        }
-
-
 class Volume(Base):
     __tablename__ = 'volume'
 
@@ -60,7 +35,7 @@ class Volume(Base):
     topic = Column(String(250))
     cover = Column(String(250))
     series_id = Column(Integer, ForeignKey('series.id'))
-    series = relationship(Series, cascade="all, delete-orphan", single_parent=True)
+    #series = relationship(Series, single_parent=True, cascade="all, delete, delete-orphan")
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
@@ -80,7 +55,35 @@ class Volume(Base):
             'series_id'     : self.series_id,
             'user'          : self.user_id,
         }
-        
+ 
+ 
+class Series(Base):
+    __tablename__ = 'series'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False, unique=True)
+    description = Column(String)
+    director = Column(String)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+    volumes = relationship(Volume, cascade="all, delete, delete-orphan")
+
+    def __repr__(self):
+        return "<Series(name='%s' directed by '%s')>" % (self.name, self.director)
+
+    @property
+    def serialize(self):
+        return {
+            'name'          : self.name,
+            'id'            : self.id,
+            'description'   : self.description,
+            'director'      : self.director,
+            'user'          : self.user_id,
+            'volumes'       : self.volumes,
+        }
+
+
+       
 
 
 engine = create_engine('sqlite:///bookcatalogue2.db')
