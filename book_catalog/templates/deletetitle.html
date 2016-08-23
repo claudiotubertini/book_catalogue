@@ -1,0 +1,38 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header_title.html" %}
+<div class="row ">
+    <div class="col-md-12"></div>
+  </div>
+
+
+  <div class="row banner menu">
+    <div class="col-md-11 col-md-offset-1 padding-none">
+       <h1>Volume {{ item.title }}
+      <figure class="creator">
+        <img src="{{ creator.picture}}">
+        <figcaption>{{ creator.name }}</figcaption>
+      </figure>
+      </h1>
+
+    </div>
+  </div>
+
+<h3> Are you sure you want to delete the volume:<br /> <em>{{item.title}}</em>? </h3>
+
+<form action="{{url_for('deleteTitle', series_id=item.series_id, title_id=item.id)}}" method = 'post'>
+<button type="submit" class="btn btn-default">
+<span class="glyphicon glyphicon-remove"></span>Delete</button>
+
+
+</form>
+<div class="alert alert-info" role="alert">
+<p>if you have any doubts please cancel the action</p></div>
+<a href = "{{url_for('viewTitle', series_id=item.series_id, title_id=item.id )}}">
+				<button class="btn btn-default">
+					<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>Cancel
+				</button>
+</a>
+
+
+{% endblock %}

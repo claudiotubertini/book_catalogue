@@ -1,0 +1,30 @@
+<header id="header">
+<div class="col-full">
+<a id="logo" title="Books and journals for professionals" href="http://localhost:5000">
+<img alt="Clueb Editrice e ArchetipoLibri" src="{{ url_for('static', filename='clueb-logo.png') }}"></a>
+
+</div>
+</header>
+
+<div class="row top-menu">
+	<div class="col-md-8">
+		<a href="{{url_for('showTitles', series_id=series_id) }}">
+			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>Show All Volumes
+		</a>
+	</div>
+	 <div class=metanav>
+ 
+  </div>
+	<div class="col-md-4 text-right">
+	{% if 'username' not in session %}
+			<a href="{{url_for('showLogin')}}">
+			<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>Login
+			</a>
+			{% else %}
+			<a href = "{{ url_for('disconnect') }}" >
+			<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>Logout </a>
+			{% endif %}
+	</div>
+	<div class="col-md-8">
+	<h1>CLUEB Publisher Catalogue</h1>
+	</div>

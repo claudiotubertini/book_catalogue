@@ -1,0 +1,69 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header_title.html" %}
+
+
+<div class="row ">
+    <div class="col-md-12"></div>
+  </div>
+
+<div class="row divider green">
+    <div class="col-md-12"></div>
+  </div>
+  <div class="row banner menu">
+    <div class="col-md-11 col-md-offset-1 padding-none">
+      <h1>{{ series.name }}
+      <figure class="creator">
+        <img src="{{ url_for('static', filename='2_image.jpg') }}">
+        <figcaption>{{ creator.name }}</figcaption>
+      </figure>
+      </h1>
+
+    </div>
+  </div>
+
+<div class = 'flash'>
+  {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+<div class="padding-top padding-bottom btn-group">
+
+  <a href = "{{url_for( 'editTitle', series_id= item.series_id, title_id=item.id)}}" class="btn btn-sm">
+    <i class="glyphicon glyphicon-edit"></i>
+    Edit book
+  </a>
+   <a href = "{{url_for('deleteTitle',  series_id= item.series_id, title_id=item.id)}}" class="btn btn-sm">
+    <i class="glyphicon glyphicon-trash"></i>
+    Delete book
+  </a>
+</div>
+
+<div class="row padding-top padding-bottom media">
+{% if item.cover is not none %}
+  <div class="media-left">
+    <img class="book-image" src="{{url_for('uploaded_file', series_id=series.id, filename=item.cover) }}">
+  </div>
+  {% endif %}
+  <div class="media-body">
+    <h4 class="book">
+      {{item.title}}
+     
+    </h4>
+    <h5 class="book">By {{item.author|default('Unknown', True)}}</h5>
+    <p class="book">{{item.description}}</p>
+     <p class="book-price">{{item.price}}</p>
+     <p class="book">{{ item.topic }}</p>
+    
+               
+  </div>
+</div>
+
+{% endblock %}

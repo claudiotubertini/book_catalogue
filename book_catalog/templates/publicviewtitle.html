@@ -1,0 +1,67 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header_title.html" %}
+
+
+
+<h3>Book</h3>
+<div class="row divider green">
+    <div class="col-md-12"></div>
+  </div>
+  <div class="row banner menu">
+    <div class="col-md-11 col-md-offset-1 padding-none">
+      <h1>Series {{ series.name }}
+      <figure class="creator">
+        <img src="{{ url_for('static', filename='blank_user.gif') }}">
+        <figcaption>Editor's name goes here</figcaption>
+      </figure>
+      </h1>
+
+    </div>
+  </div>
+
+<div class = 'flash'>
+  {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+</div>
+<div class="padding-top padding-bottom btn-group">
+<!-- <a href = "{{url_for( 'editTitle', series_id= item.series_id, title_id=item.id, item=item)}}" class="btn btn-sm">
+    <i class="glyphicon glyphicon-edit"></i>
+    Edit book
+  </a> -->
+  <a href = "{{url_for( 'editTitle', series_id= item.series_id, title_id=item.id)}}" class="btn btn-sm">
+    <i class="glyphicon glyphicon-edit"></i>
+    Edit book
+  </a>
+   <a href = "{{url_for('deleteTitle', item = item, series_id= item.series_id, title_id=item.id)}}" class="btn btn-danger btn-sm">
+    <i class="glyphicon glyphicon-trash"></i>
+    Delete book
+  </a>
+</div>
+
+<div class="row padding-top padding-bottom media">
+  <div class="media-left">
+    <img class="book-image" src="http://placekitten.com/g/128/192">
+  </div>
+  <div class="media-body">
+    <h4 class="book-title">
+      {{item.title}}
+      <small>item.publishedDate</small>
+    </h4>
+    <h5 class="book-author">By {{item.author|default('Unknown', True)}}</h5>
+    <p class="book-description">{{item.description}}</p>
+     <p class="menu-price">{{item.price}}</p>
+    
+               
+  </div>
+</div>
+
+{% endblock %}

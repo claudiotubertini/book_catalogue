@@ -1,0 +1,66 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header_title.html" %}
+<div class="row ">
+		<div class="col-md-12"></div>
+	</div>
+	<div class="row banner menu">
+		<div class="col-md-11 col-md-offset-1 padding-none">
+			<h1>{{ series.name }}
+			<figure class="creator">
+				<img src="{{ creator.picture}}">
+				<figcaption>{{ creator.name }}</figcaption>
+			</figure>
+			</h1>
+
+		</div>
+	</div>
+	<div class="row padding-top padding-bottom">
+		<div class="col-md-1"></div>
+		<div class="col-md-11 padding-none">
+			
+		</div>
+		<div class="col-md-7"></div>
+</div>
+
+
+
+	<div class="row">
+		<div class="col-md-12">
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<ul>
+						{% for message in messages %}
+							 <li> <strong> {{ message }} </strong> </li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			{% endwith %}
+		</div>
+	</div>
+	{% if items !=[] %}	
+		<div class="row">
+			<div class="col-md-1"></div>
+			{% for i in items %}
+					<div class="col-md-3">
+							<div class="menu-item">
+							
+							{% if i.cover is not none %}
+							<div class="media-left">
+    							<img class="book-image" src="{{url_for('uploaded_file', series_id=series.id, filename=i.cover) }}">
+							</div>
+							{% endif %}
+  							
+								<h3>{{i.title}}</h3>
+								<p class='book'>{{i.author}}</p>
+								<p class='book'>{{i.description}}</p>
+								<p class='book'>{{i.topic}}</p>
+								<p class="menu-price">{{i.price}}</p>
+								<a href = "{{url_for('viewTitle', series_id=i.series_id, title_id=i.id)}}">See more</a>
+							</div>	
+					</div>
+					{% endfor %}
+			<div class="col-md-1"></div>
+		</div>
+	{% endif %}
+{% endblock %}
