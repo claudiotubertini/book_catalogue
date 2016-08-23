@@ -35,7 +35,6 @@ class Volume(Base):
     topic = Column(String(250))
     cover = Column(String(250))
     series_id = Column(Integer, ForeignKey('series.id'))
-    #series = relationship(Series, single_parent=True, cascade="all, delete, delete-orphan")
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
@@ -56,7 +55,7 @@ class Volume(Base):
             'user'          : self.user_id,
         }
  
- 
+
 class Series(Base):
     __tablename__ = 'series'
 
