@@ -60,7 +60,7 @@ class Volume(Base):
     topic = Column(String(250))
     cover = Column(String(250))
     series_id = Column(Integer, ForeignKey('series.id'))
-    series = relationship(Series)
+    series = relationship(Series, cascade="all, delete-orphan", single_parent=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 

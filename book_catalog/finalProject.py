@@ -1,15 +1,18 @@
-from flask import Flask, render_template, request, make_response, redirect, url_for, flash, jsonify, send_from_directory
+from flask import Flask, render_template, request, make_response, redirect, \
+        url_for, flash, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker, relationship
 from database_series import Series, Volume, Base, User
 from flask import session as login_session
-import random, string
+import random
+import string
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
-import json, os
+import json
+import os
 import requests
 app = Flask(__name__)
 
@@ -442,7 +445,7 @@ def editTitle(series_id, title_id):
         return render_template("edittitle.html", series_id = series_id, title_id = title_id, item=editedItem, creator=creator)
 	
 
-@app.route('/series/<int:series_id>/titles/<int:title_id>/delete/')
+@app.route('/series/<int:series_id>/titles/<int:title_id>/delete/', methods = ['GET', 'POST'])
 def deleteTitle(series_id, title_id):
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
@@ -452,8 +455,13 @@ def deleteTitle(series_id, title_id):
         flash("You are not authorized to delete this title")
         return redirect(url_for('showTitles', series_id=series_id, creator=creator))
     if request.method == 'POST':
+        deleteCover = itemToDelete.cover
         session.delete(itemToDelete)
         session.commit()
+        if deleteCover:
+            f = os.path.join(app.config['UPLOAD_FOLDER'], str(series_id), deleteCover)
+            if os.path.exists(f):
+                os.remove(f)
         flash("A volume has been deleted")
         return redirect(url_for('showTitles', series_id=series_id, creator=creator))
     else:
