@@ -42,10 +42,16 @@ def login_required(f):
             return redirect(url_for('showLogin', next=request.url))
     return decorated_function
 
-def owner_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        
+# def owner_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         editedItem = session.query(Series).filter_by(id=series_id).one()
+#         if editedItem.user_id != login_session['user_id']:
+#             flash("You are not authorized to edit this series")
+#             return redirect(url_for('showSeries'))
+#         creator = getUserInfo(editedItem.user_id)
+#     return decorated_function
+
 
 # L O G I N
 @app.route('/login')
@@ -75,9 +81,7 @@ def fbconnect():
         open('fb_client_secrets.json', 'r').read())['web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token\
-&client_id=%s&client_secret=%s&fb_exchange_token=%s' \
-% (app_id, app_secret, access_token)
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -102,8 +106,7 @@ def fbconnect():
     login_session['access_token'] = stored_token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=\
-    200&width=200' % token
+    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -127,8 +130,7 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 200px; height: 200px; border-radius: 50%;\
-    -webkit-border-radius: 50%;-moz-border-radius: 50%;"> '
+    output += ' " style = "width: 200px; height: 200px; border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
@@ -246,8 +248,7 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 200px; height: 200px; border-radius: 50%;\
--webkit-border-radius: 50%;-moz-border-radius: 50%;"> '
+    output += ' " style = "width: 200px; height: 200px; border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print ("done!")
     return output
@@ -432,7 +433,7 @@ def showTitles(series_id):
     series = session.query(Series).filter_by(id=series_id).one()
     creator = getUserInfo(series.user_id)
     items = session.query(Volume).filter_by(series_id=series.id).all()
-    if 'username' not in login_session or creator.id != login_session['user_id']:
+    if 'username' not in login_session:
         return render_template('publictitles.html', items=items, 
             series_id=series.id, series=series, creator=creator)
     else:
@@ -447,8 +448,9 @@ def viewTitle(series_id, title_id):
     Show all the details of a title
     '''
     series = session.query(Series).filter_by(id=series_id).one()
-    creator = getUserInfo(series.user_id)
     item = session.query(Volume).filter_by(id=title_id).one()
+    creator = getUserInfo(item.user_id)
+    
     return render_template('viewtitle.html', title_id = item.id,  
         item = item, series_id=series.id, series = series, creator=creator)
 
