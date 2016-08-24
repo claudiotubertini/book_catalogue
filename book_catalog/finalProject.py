@@ -41,15 +41,33 @@ def login_required(f):
             flash('You are not allowed to access this page')
             return redirect(url_for('showLogin', next=request.url))
     return decorated_function
-
+# TUTOR suggestion #######################
 # def owner_required(f):
+#     """Function decorator.
+#     Requires to be the owner of an item before modyfing it.
+#     """
 #     @wraps(f)
 #     def decorated_function(*args, **kwargs):
-#         editedItem = session.query(Series).filter_by(id=series_id).one()
-#         if editedItem.user_id != login_session['user_id']:
-#             flash("You are not authorized to edit this series")
-#             return redirect(url_for('showSeries'))
-#         creator = getUserInfo(editedItem.user_id)
+#         # Since I'm using this decorator both for styles and models, I need
+#         # to differentiate between both.
+#         style_id = kwargs['style_id']
+#         if 'model_id' in kwargs:
+#             model_id = kwargs['model_id']
+#             target = session.query(Model).filter_by(id=model_id).one()
+#             return_target = url_for('showModels', style_id=style_id)
+#         else:
+#             target = session.query(Style).filter_by(id=style_id).one()
+#             return_target = url_for('showStyles')
+
+#         if target.user_id != login_session['user_id']:
+#             flash(
+#                 "You are not allowed to perform this operation because " +
+#                 "you don't own the item",
+#                 'alert-danger')
+#             return redirect(return_target)
+#             url_for('showModels', style_id=style_id)
+#         else:
+#             return f(*args, **kwargs)
 #     return decorated_function
 
 
