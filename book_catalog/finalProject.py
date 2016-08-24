@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, make_response, redirect, \
         url_for, flash, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
-
+from functools import wraps
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker, relationship
 from database_series import Series, Volume, Base, User
@@ -31,10 +31,23 @@ CLIENT_ID = json.loads(open(
     'client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = 'CatalogueApp'
 
+# DECORATORS
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' in login_session:
+            return f(*args, **kwargs)
+        else:
+            flash('You are not allowed to access this page')
+            return redirect(url_for('showLogin', next=request.url))
+    return decorated_function
 
-########## L O G I N #############
+def owner_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        
 
-
+# L O G I N
 @app.route('/login')
 def showLogin():
     '''
@@ -295,44 +308,36 @@ def disconnect():
         return redirect(url_for('showSeries'))
 
 
-########## JSON endpoints ###################
-
-
+# JSON endpoints
 @app.route('/series/JSON')
+@login_required
 def showSeriesJSON():
     '''
     List all series in JSON format
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
-    else:
-        items = session.query(Series).order_by(Series.name).all()
-        return jsonify(series= [i.serialize for i in items])
+    items = session.query(Series).order_by(Series.name).all()
+    return jsonify(series= [i.serialize for i in items])
 
 @app.route('/series/<int:series_id>/titles/JSON')
+@login_required
 def showTitlesJSON(series_id):
     '''
     List all titles of a certain series in JSON format
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
-    else:
-        series = session.query(Series).filter_by(id=series_id).one()
-        items = session.query(Volume).filter_by(series_id=series.id).all()
-        return jsonify(titles=[i.serialize for i in items])
+    series = session.query(Series).filter_by(id=series_id).one()
+    items = session.query(Volume).filter_by(series_id=series.id).all()
+    return jsonify(titles=[i.serialize for i in items])
 
 @app.route('/series/<int:series_id>/titles/<int:title_id>/JSON')
+@login_required
 def showTitleJSON(series_id, title_id):
     '''
     Show the details of a single title in JSON format
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
-    else:
-        item = session.query(Volume).filter_by(id=title_id).one()
-        return jsonify(item.serialize)
+    item = session.query(Volume).filter_by(id=title_id).one()
+    return jsonify(item.serialize)
 
-######### CRUD functions ###################################
+# CRUD functions
 
 @app.route('/')
 @app.route('/series/')
@@ -347,12 +352,11 @@ def showSeries():
         return render_template("series.html", series = items)
 
 @app.route('/series/new/', methods = ['GET', 'POST'])
+@login_required
 def newSeries():
     '''
     If you are logged in you can add a new series to the catalogue
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
     creator = getUserInfo(login_session['user_id'])
     if request.method == 'POST':
         newItem = Series(name=request.form['name'], 
@@ -361,7 +365,6 @@ def newSeries():
             user_id = login_session['user_id'])
         session.add(newItem)
         session.commit()
-
         flash("new series added!")
         return redirect(url_for('showSeries'))
     else:
@@ -369,12 +372,11 @@ def newSeries():
     
 
 @app.route('/series/<int:series_id>/edit/', methods = ['GET', 'POST'])
+@login_required
 def editSeries(series_id):
     '''
     If you are the owner of a series you can edit the details
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
     editedItem = session.query(Series).filter_by(id=series_id).one()
     if editedItem.user_id != login_session['user_id']:
         flash("You are not authorized to edit this series")
@@ -397,12 +399,13 @@ def editSeries(series_id):
 
 
 @app.route('/series/<int:series_id>/delete/', methods = ['GET', 'POST'])
+@login_required
 def deleteSeries(series_id):
     '''
     If you are the owner of a series you can delete it
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
+    # if 'username' not in login_session:
+    #     return redirect(url_for('showLogin'))
     items = session.query(Series).order_by(Series.name).all()
     itemToDelete = session.query(Series).filter_by(id=series_id).one()
     if itemToDelete.user_id != login_session['user_id']:
@@ -451,12 +454,11 @@ def viewTitle(series_id, title_id):
 
 
 @app.route('/series/<int:series_id>/titles/new/', methods=['GET', 'POST'])
+@login_required
 def newTitle(series_id):
     '''
     If you are the owner of the series you can add a new title
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
     series = session.query(Series).filter_by(id=series_id).one()
     items = session.query(Volume).filter_by(series_id=series.id).all()
     creator = getUserInfo(series.user_id)
@@ -488,12 +490,11 @@ def newTitle(series_id):
 
 @app.route('/series/<int:series_id>/titles/<int:title_id>/edit/', 
             methods = ['GET', 'POST'])
+@login_required
 def editTitle(series_id, title_id):
     '''
     If you are the owner of the series you can edit a title
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
     editedItem = session.query(Volume).filter_by(id=title_id).one()
     series = session.query(Series).filter_by(id=series_id).one()
     creator = getUserInfo(editedItem.user_id)
@@ -528,12 +529,13 @@ def editTitle(series_id, title_id):
 
 @app.route('/series/<int:series_id>/titles/<int:title_id>/delete/', 
             methods = ['GET', 'POST'])
+@login_required
 def deleteTitle(series_id, title_id):
     '''
     If you are the owner of the series you can delete a title
     '''
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
+    # if 'username' not in login_session:
+    #     return redirect(url_for('showLogin'))
     itemToDelete = session.query(Volume).filter_by(id=title_id).one()
     creator = getUserInfo(itemToDelete.user_id)
     if creator.id != login_session['user_id']:
@@ -557,7 +559,7 @@ def deleteTitle(series_id, title_id):
                                title_id=itemToDelete.id, creator=creator)
 
 
-############ HELPER functions #########################
+# HELPER functions 
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email = email).one()
@@ -580,7 +582,7 @@ def createUser(login_session):
     user = session.query(User).filter_by(email = login_session['email']).one()
     return user.id
 
-############ UPLOADING functions ########################
+# UPLOADING functions
 def allowed_file(filename):
     '''
     Return true if filename contains one of the file extensions
@@ -615,7 +617,7 @@ def uploaded_file(series_id, filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'],
                "clueb_logo1.png")
 
-############### APPLICATION ###############
+# APPLICATION
 
 if __name__ == '__main__':
     app.secret_key = '\xef\xc4\xe26m4\xa1;-b\x19\xad\xe2o\xac"p|\x1d:\x13\x0c\xaf\x11'
