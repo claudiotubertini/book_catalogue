@@ -14,7 +14,7 @@ import httplib2
 import json
 import os
 import requests
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # Connect to Database and create database session
 engine = create_engine('sqlite:///bookcatalogue2.db')
@@ -93,7 +93,7 @@ def fbconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = request.data
-    print "access token received %s " % access_token
+    print("access token received %s ") % access_token
 
     app_id = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_id']
@@ -637,9 +637,15 @@ def uploaded_file(series_id, filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'],
                "clueb_logo1.png")
 
+@app.route('/robots.txt')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
+
+
 # APPLICATION
 
-if __name__ == '__main__':
-    app.secret_key = '\xef\xc4\xe26m4\xa1;-b\x19\xad\xe2o\xac"p|\x1d:\x13\x0c\xaf\x11'
-    app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+#if __name__ == '__main__':
+#    app.secret_key = '\xef\xc4\xe26m4\xa1;-b\x19\xad\xe2o\xac"p|\x1d:\x13\x0c\xaf\x11'
+#    app.debug = True
+#    app.run(host='0.0.0.0', port=5000)
