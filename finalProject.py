@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, make_response, redirect, \
         url_for, flash, jsonify, send_from_directory
+from flask_babel import Babel
 from werkzeug.utils import secure_filename
 from functools import wraps
 from sqlalchemy import create_engine, asc
@@ -78,7 +79,7 @@ def showLogin():
     Create a state token that will be later used in connecting through g+ e fb
     '''
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                    for x in xrange(32))
+                    for x in range(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state)
 

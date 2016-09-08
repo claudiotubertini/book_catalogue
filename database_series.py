@@ -27,7 +27,7 @@ class User(Base):
 class Volume(Base):
     __tablename__ = 'volume'
 
-    title = Column(String(80), nullable=False)
+    title = Column(String(250), nullable=False)
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
     price = Column(String(8))
@@ -37,6 +37,10 @@ class Volume(Base):
     series_id = Column(Integer, ForeignKey('series.id'))
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
+    pubyear = Column(String(8))
+    format_id = Column(Integer, ForeignKey('format.id'))
+    formats = relationship(Format)
+    
 
     def __repr__(self):
         return "<Volume(title='%s', description='%s', price='%s', author='%s')>" % (self.title, self.description, self.price, self.author)
@@ -55,6 +59,13 @@ class Volume(Base):
             'user'          : self.user_id,
         }
  
+class Format(Base):
+    __tablename__= 'format'
+
+    id = Column(Integer, primary_key=True)
+    pubformat = Column(String(80))
+
+
 
 class Series(Base):
     __tablename__ = 'series'
