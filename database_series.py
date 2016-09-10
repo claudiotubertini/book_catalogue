@@ -36,10 +36,10 @@ class Volume(Base):
     cover = Column(String(250))
     series_id = Column(Integer, ForeignKey('series.id'))
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    user = relationship('User')
     pubyear = Column(String(8))
-    format_id = Column(Integer, ForeignKey('format.id'))
-    formats = relationship(Format)
+    formats = relationship('Format')
+    isbn_parent = Column(String(80))
     
 
     def __repr__(self):
@@ -63,7 +63,9 @@ class Format(Base):
     __tablename__= 'format'
 
     id = Column(Integer, primary_key=True)
+    volume_id = Column(Integer, ForeignKey('volume.id'))
     pubformat = Column(String(80))
+    isbn_format = Column(String(80))
 
 
 
