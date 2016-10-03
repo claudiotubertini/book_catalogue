@@ -2,9 +2,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_series import Series, Base, Volume
+from database_series import Series, Base, Volume, Format, User
 
-engine = create_engine('sqlite:///bookcatalogue.db')
+engine = create_engine('sqlite:///bookcatalogue_test.db')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)

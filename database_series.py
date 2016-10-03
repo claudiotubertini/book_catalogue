@@ -29,7 +29,8 @@ class Volume(Base):
 
     title = Column(String(250), nullable=False)
     id = Column(Integer, primary_key=True)
-    description = Column(String(250))
+    description = Column(String(450))
+    short_desc = Column(String(250))
     price = Column(String(8))
     author = Column(String(250))
     topic = Column(String(250))
@@ -37,9 +38,16 @@ class Volume(Base):
     series_id = Column(Integer, ForeignKey('series.id'))
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship('User')
-    pubyear = Column(String(8))
+    pubdate = Column(String(8))
     formats = relationship('Format')
+    binding = Column(String(30))
     isbn_parent = Column(String(80))
+    pages_num = Column(Integer)
+    language = Column(String(30))
+    edition_num = Column(Integer)
+    illustrator = Column(String(30))
+    translator = column(String(30))
+    volume_num = Column(Integer)
     
 
     def __repr__(self):
@@ -50,6 +58,7 @@ class Volume(Base):
         return {
             'title'         : self.title,
             'description'   : self.description,
+            'short_desc'    : self.short_desc,
             'id'            : self.id,
             'price'         : self.price,
             'author'        : self.author,
@@ -57,6 +66,15 @@ class Volume(Base):
             'cover'         : self.cover,
             'series_id'     : self.series_id,
             'user'          : self.user_id,
+            'pubdate'       : self.pubdate,
+            'binding'       : self.binding,
+            'isbn_parent'   : self.isbn_parent,
+            'pages_num'     : self.pages_num,
+            'language'      : self.language,
+            'edition_num'   : self.edition_num,
+            'illustrator'   : self.illustrator,
+            'translator'    : self.translator,
+            'volume_num'    : self.volume_num
         }
  
 class Format(Base):
