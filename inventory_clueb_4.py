@@ -100,6 +100,14 @@ for i in range(1,294):
     res.append(jData)  # each record is a python dict
 with open("volumes_oldformat.json", 'w') as fd:
     json.dump(res, fd, indent=4)
+volumes = [{'title':res[x][y]['title'],
+            'description':res[x][y]['description'],
+            'short_desc': res[x][y]['short_description'],
+            'price': res[x][y]['price'],
+            'author': res[x][y]['author'],
+            'topic': res[x][y]['tags'],
+            'cover': res[x][y]['images']['src'],
+            } for x in range(28) for y in range(10)]
 # for i in range(1,3):
 #     jData = wcapi.get("products?filter[post_status]=any&fields=id,sku,in_stock,status,stock_quantity,managing_stock&page=" + str(i)).json()
 #     res2.append(jData)
