@@ -28,10 +28,11 @@ volume = [ {'title':'Contrastiva. Grammatica della lingua spagnola',
 
 
 # l = 0
-# for i in series:
-	
-# 	session.add(Series(name=i['name'], description=i['description'], director=i['director'], id=i['id']))
-# 	session.commit()
+for i in series:
+	session.add(Series(name=i['name'], description=i['description'], director=i['director']))
+	session.commit()
+# session.query(Series).delete()
+# session.commit()
  # title = Column(String(80), nullable=False)
  #    id = Column(Integer, primary_key=True)
  #    description = Column(String(250))

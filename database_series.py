@@ -46,7 +46,7 @@ class Volume(Base):
     language = Column(String(30))
     edition_num = Column(Integer)
     illustrator = Column(String(30))
-    translator = column(String(30))
+    translator = Column(String(30))
     volume_num = Column(Integer)
     
 
@@ -116,7 +116,7 @@ class Series(Base):
        
 
 
-engine = create_engine('sqlite:///bookcatalogue2.db')
+engine = create_engine('sqlite:///bookcatalogue_test.db')
 
 
 Base.metadata.create_all(engine)
